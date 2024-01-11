@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Electron Calendar</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/core/main.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid/main.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid/main.min.css" />
+</head>
+<body>
+  <h1>Electron Calendar App</h1>
+  <div id="calendar"></div>
+  <script>
+    const { ipcRenderer } = require('electron');
+    const { Calendar } = require('@fullcalendar/core');
+    const dayGridPlugin = require('@fullcalendar/daygrid');
+    const timeGridPlugin = require('@fullcalendar/timegrid');
+    const interactionPlugin = require('@fullcalendar/interaction');
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // สร้างปฏิทิน
+      const calendar = new Calendar(document.getElementById('calendar'), {
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        initialView: 'dayGridMonth',
+        events: [],
+        plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+        dateClick: function(info) {
+          // ส่งข้อมูลวันที่ที่คลิกไปยัง Main Process
+          ipcRenderer.send('day-click', info.date);
+        }
+      });
+      calendar.render();
+    });
+  </script>
+</body>
+</html>
